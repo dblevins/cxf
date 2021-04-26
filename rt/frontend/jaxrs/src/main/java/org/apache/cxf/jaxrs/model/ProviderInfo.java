@@ -42,7 +42,7 @@ public class ProviderInfo<T> extends AbstractResourceInfo {
         this(resourceClass, serviceClass, provider, bus, true, custom);
     }
 
-    public ProviderInfo(Class<?> resourceClass, Class<?> serviceClass, T provider, Bus bus, 
+    public ProviderInfo(Class<?> resourceClass, Class<?> serviceClass, T provider, Bus bus,
             boolean checkContexts, boolean custom) {
         this(resourceClass, serviceClass, provider, null, bus, checkContexts, custom);
     }
@@ -54,7 +54,7 @@ public class ProviderInfo<T> extends AbstractResourceInfo {
         this(provider, constructorProxies, bus, true, custom);
     }
 
-    public ProviderInfo(Class<?> resourceClass, 
+    public ProviderInfo(Class<?> resourceClass,
             Class<?> serviceClass,
             T provider,
             Map<Class<?>, ThreadLocalProxy<?>> constructorProxies,
@@ -106,4 +106,12 @@ public class ProviderInfo<T> extends AbstractResourceInfo {
         this.busGlobal = busGlobal;
     }
 
+    @Override
+    public String toString() {
+        return "ProviderInfo{"
+                + "resourceClass="
+                + resourceClass
+                + ", serviceClass=" + serviceClass
+                + '}';
+    }
 }

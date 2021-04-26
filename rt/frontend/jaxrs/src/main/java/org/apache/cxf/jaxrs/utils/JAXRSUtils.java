@@ -94,7 +94,9 @@ import org.apache.cxf.helpers.LoadingByteArrayOutputStream;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.CacheAndWriteOutputStream;
 import org.apache.cxf.io.ReaderInputStream;
+import org.apache.cxf.jaxrs.Debug;
 import org.apache.cxf.jaxrs.JAXRSServiceImpl;
+import org.apache.cxf.jaxrs.Mode;
 import org.apache.cxf.jaxrs.ext.ContextProvider;
 import org.apache.cxf.jaxrs.ext.DefaultMethod;
 import org.apache.cxf.jaxrs.ext.MessageContext;
@@ -1439,6 +1441,7 @@ public final class JAXRSUtils {
             return first.aroundReadFrom(context);
         }
         MessageBodyReader<?> provider = ((ReaderInterceptorMBR)readers.get(0)).getMBR();
+        Debug.printSelectedReader(targetTypeClass, mediaType, provider);
         @SuppressWarnings("rawtypes")
         Class cls = targetTypeClass;
         return provider.readFrom(
@@ -1477,6 +1480,8 @@ public final class JAXRSUtils {
             first.aroundWriteTo(context);
         } else {
             MessageBodyWriter<Object> writer = ((WriterInterceptorMBW)writers.get(0)).getMBW();
+            Debug.printSelectedWriter(type, mediaType, writer);
+
             if (type == byte[].class) {
                 long size = writer.getSize(entity, type, genericType, annotations, mediaType);
                 if (size != -1) {
@@ -1904,7 +1909,7 @@ public final class JAXRSUtils {
         LOG.severe(errorMessage);
         return errorMessage;
     }
-    
+
     /**
      * Get path URI template, combining base path, class & method & subresource templates 
      * @param message message instance
@@ -1913,7 +1918,7 @@ public final class JAXRSUtils {
      * @param subOri operation subresource info
      * @return the URI template for the method in question
      */
-    public static String getUriTemplate(Message message, ClassResourceInfo cri, OperationResourceInfo ori, 
+    public static String getUriTemplate(Message message, ClassResourceInfo cri, OperationResourceInfo ori,
             OperationResourceInfo subOri) {
         final String template = getUriTemplate(message, cri, ori);
         final String methodPathTemplate = getUriTemplate(subOri);
@@ -1940,11 +1945,11 @@ public final class JAXRSUtils {
         } else if (!template.startsWith("/")) {
             template = "/" + template;
         }
-        
+
         template = combineUriTemplates(template, classPathTemplate);
         return combineUriTemplates(template, methodPathTemplate);
     }
-    
+
     /**
      * Gets the URI template of the operation from its resource info
      * to assemble final URI template 
@@ -1959,7 +1964,7 @@ public final class JAXRSUtils {
             return null;
         }
     }
-    
+
     /**
      * Goes over sub-resource class resource templates (through parent chain) if necessary
      * to assemble final URI template 
@@ -1976,7 +1981,7 @@ public final class JAXRSUtils {
             return null; /* should not happen */
         }
     }
-    
+
     /**
      * Combines two URI templates together
      * @param parent parent URI template
@@ -2005,7 +2010,7 @@ public final class JAXRSUtils {
 
     // copy the input stream so that it is not inadvertently closed
     private static InputStream copyAndGetEntityStream(Message m) {
-        LoadingByteArrayOutputStream baos = new LoadingByteArrayOutputStream(); 
+        LoadingByteArrayOutputStream baos = new LoadingByteArrayOutputStream();
         try (InputStream in = m.getContent(InputStream.class)) {
             IOUtils.copy(in, baos);
         } catch (IOException e) {
